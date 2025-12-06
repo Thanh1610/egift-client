@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
+import { Merriweather } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/organisms/header";
+import Footer from "@/components/organisms/Footer";
+import ScrollToTop from "@/components/organisms/ScrollToTop";
 import { ThemeProvider } from "@/components/theme-provider";
+
+// Font Merriweather cho heading - "Giọng triết lý"
+const merriweather = Merriweather({
+  weight: ["700", "900"],
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-merriweather",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={merriweather.variable}>
       <body className="antialiased bg-background text-foreground">
         <QueryProvider>
           <ThemeProvider
@@ -27,6 +38,8 @@ export default function RootLayout({
           >
             <Header />
             <main className="bg-background text-foreground">{children}</main>
+            <Footer />
+            <ScrollToTop />
           </ThemeProvider>
         </QueryProvider>
         <Toaster position="top-center" />

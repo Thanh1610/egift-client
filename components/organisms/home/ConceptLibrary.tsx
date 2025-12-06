@@ -73,7 +73,7 @@ export default function ConceptLibrary() {
           id="concept-library-title"
           className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl"
         >
-          Kho quan niệm
+          KHO QUAN NIỆM
         </h2>
       </div>
 

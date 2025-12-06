@@ -50,7 +50,7 @@ export default function ConceptSourceSet() {
           id="concept-source-title"
           className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl"
         >
-          Bộ khái niệm nguồn
+          BỘ KHÁI NIỆM NGUỒN
         </h2>
       </div>
 

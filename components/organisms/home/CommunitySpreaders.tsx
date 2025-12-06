@@ -40,7 +40,7 @@ export default function CommunitySpreaders() {
           id="community-spreaders-title"
           className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl"
         >
-          Cộng đồng & Người lan tỏa
+          CỘNG ĐỒNG & NGƯỜI LAN TỎA
         </h2>
       </div>
 

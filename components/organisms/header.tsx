@@ -1,14 +1,29 @@
-import StickyHeader from "@/components/organisms/stickyHeader";
-import Image from "next/image";
-import { ModeToggle } from "@/components/atoms/ModeToggle";
-import { Navigation } from "@/components/organisms/Navigation";
+import StickyHeader from '@/components/organisms/stickyHeader';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ModeToggle } from '@/components/atoms/ModeToggle';
+import {
+  Navigation,
+  MobileMenuButton,
+} from '@/components/organisms/Navigation';
+import { ROUTES } from '@/config/constain';
 
 function Header() {
   return (
     <StickyHeader className="flex flex-col items-center">
-      <div className="flex justify-between items-center w-full">
-        <div className="flex justify-start items-center gap-2">
-          <div className="h-12 w-[148px] flex items-center">
+      {/* Mobile: Grid 3 cột (Menu, Logo giữa, ModeToggle) */}
+      {/* Desktop: Flex justify-between (Logo trái, ModeToggle phải) */}
+      <div className="grid w-full grid-cols-3 items-center md:flex md:justify-between">
+        {/* Mobile Menu Button - Chỉ hiển thị trên mobile, bên trái */}
+        <div className="flex justify-start md:hidden">
+          <MobileMenuButton />
+        </div>
+        {/* Logo - Căn giữa trên mobile, bên trái trên desktop */}
+        <Link
+          href={ROUTES.HOME}
+          className="flex justify-center md:justify-start cursor-pointer"
+        >
+          <div className="flex h-12 w-[148px] items-center">
             <Image
               src="/logo/egift365.svg"
               alt="Egift365"
@@ -19,13 +34,14 @@ function Header() {
               priority
             />
           </div>
-        </div>
-
-        <div className="flex gap-2 justify-end items-center col-start-3">
+        </Link>
+        {/* ModeToggle - Bên phải */}
+        <div className="flex items-center justify-end gap-2">
           <ModeToggle />
         </div>
       </div>
-      <div className="flex justify-center items-center w-full px-4 py-3 md:px-6">
+      {/* Navigation - Chỉ hiển thị trên desktop */}
+      <div className="hidden w-full items-center justify-center px-4 py-3 md:flex md:px-6">
         <Navigation />
       </div>
     </StickyHeader>

@@ -59,7 +59,7 @@ export default function InnerStories() {
           id="inner-stories-title"
           className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl"
         >
-          Câu chuyện nội tâm
+          CÂU CHUYỆN NỘI TÂM
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
           Những câu chuyện ngắn cho cả trẻ em và người lớn — kể về bài học chân thật, tình thương,
