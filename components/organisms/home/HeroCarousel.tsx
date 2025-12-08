@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -26,11 +27,14 @@ export default function HeroCarousel({ banners }: { banners: string[] }) {
         {banners.map((banner, index) => (
           <CarouselItem key={index} className="w-full">
             <Card className="border-none rounded-none">
-              <CardContent className="flex h-[600px] items-center justify-center p-0 bg-gray-200">
-                <img
+              <CardContent className="flex h-[600px] items-center justify-center p-0 bg-gray-200 relative">
+                <Image
                   src={banner}
                   alt={`Banner ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                  sizes="100vw"
                 />
               </CardContent>
             </Card>

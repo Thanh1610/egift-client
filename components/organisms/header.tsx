@@ -1,3 +1,5 @@
+'use client';
+
 import StickyHeader from '@/components/organisms/stickyHeader';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,8 +9,13 @@ import {
   MobileMenuButton,
 } from '@/components/organisms/Navigation';
 import { ROUTES } from '@/config/constain';
+import AvatarDropDown from '@/components/molecules/ui/AvatarDropDown';
+import { useUserStore } from '@/store/useUserStore';
 
 function Header() {
+  // Lấy user và profile từ Zustand store
+  const user = useUserStore(state => state.user);
+  const profile = useUserStore(state => state.profile);
   return (
     <StickyHeader className="flex flex-col items-center">
       {/* Mobile: Grid 3 cột (Menu, Logo giữa, ModeToggle) */}
@@ -21,7 +28,7 @@ function Header() {
         {/* Logo - Căn giữa trên mobile, bên trái trên desktop */}
         <Link
           href={ROUTES.HOME}
-          className="flex justify-center md:justify-start cursor-pointer"
+          className="flex cursor-pointer justify-center md:justify-start"
         >
           <div className="flex h-12 w-[148px] items-center">
             <Image
@@ -35,9 +42,20 @@ function Header() {
             />
           </div>
         </Link>
-        {/* ModeToggle - Bên phải */}
+        {/* ModeToggle và AvatarDropDown - Bên phải */}
         <div className="flex items-center justify-end gap-2">
           <ModeToggle />
+
+          {user && (
+            <AvatarDropDown
+              avatarUrl={profile?.avatar_url || null}
+              fallback={
+                profile?.full_name?.[0]?.toUpperCase() ||
+                user.email?.[0]?.toUpperCase() ||
+                'U'
+              }
+            />
+          )}
         </div>
       </div>
       {/* Navigation - Chỉ hiển thị trên desktop */}

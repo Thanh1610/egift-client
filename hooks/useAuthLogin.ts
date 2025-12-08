@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import { createClient } from "@/lib/supabase/client"
 import { ROUTES } from "@/lib/constants/routes"
+import { useUserStore } from "@/store/useUserStore"
+import type { UserProfile } from "@/store/useUserStore"
 
 interface LoginCredentials {
   email: string
@@ -16,6 +18,7 @@ interface LoginResponse {
 
 export function useAuthLogin() {
   const router = useRouter()
+  const { setUser, setProfile } = useUserStore()
 
   const mutation = useMutation({
     mutationFn: async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -31,25 +34,19 @@ export function useAuthLogin() {
         throw new Error(signInError.message)
       }
 
-      // Check user role in profile
+      // Lưu user và profile vào Zustand store (không check role ở client)
       if (signInData.user) {
-        const { data: profile, error: profileError } = await supabase
+        // Fetch profile từ database
+        const { data: profile } = await supabase
           .from("profiles")
-          .select("role")
+          .select("*")
           .eq("id", signInData.user.id)
           .single()
 
-        if (profileError || !profile) {
-          // Sign out if profile doesn't exist
-          await supabase.auth.signOut()
-          throw new Error("Bạn không có quyền truy cập vào trang này.")
-        }
-
-        // Check if role is "master"
-        if (profile.role !== "master") {
-          // Sign out user if role is not master
-          await supabase.auth.signOut()
-          throw new Error("Bạn không có quyền truy cập vào trang này.")
+        // Lưu user và profile vào store
+        setUser(signInData.user)
+        if (profile) {
+          setProfile(profile as UserProfile)
         }
       }
 

@@ -38,17 +38,23 @@ export function LoginForm({
     const errorParam = searchParams.get("error")
     if (errorParam) {
       const errorMessage = decodeURIComponent(errorParam)
-      setError(errorMessage)
       toast.error(errorMessage)
       // Clean up URL by removing error param
       router.replace(ROUTES.AUTH.LOGIN, { scroll: false })
+      // Use setTimeout to avoid setState in effect
+      setTimeout(() => {
+        setError(errorMessage)
+      }, 0)
     }
   }, [searchParams, router])
 
   // Update error state from mutation error
   useEffect(() => {
     if (loginError) {
-      setError(loginError.message)
+      // Use setTimeout to avoid setState in effect
+      setTimeout(() => {
+        setError(loginError.message)
+      }, 0)
     }
   }, [loginError])
 

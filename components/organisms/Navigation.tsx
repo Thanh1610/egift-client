@@ -16,6 +16,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { ROUTES } from '@/config/constain';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -40,42 +41,21 @@ type MenuItemWithDescription = {
 
 /** Danh sách các items cho menu "Hành trình Trưởng thành" */
 const journeyItems: SimpleMenuItem[] = [
-  {
-    title: 'Bản đồ Chuyển hóa',
-    href: '/journey/map',
-  },
-  {
-    title: 'Game Hành trình Trưởng thành',
-    href: '/journey/game',
-  },
-  {
-    title: 'Vòng quay Tri thức',
-    href: '/journey/wheel',
-  },
+  { title: 'Bản đồ Chuyển hóa', href: '/journey/map' },
+  { title: 'Game Hành trình Trưởng thành', href: '/journey/game' },
+  { title: 'Vòng quay Tri thức', href: '/journey/wheel' },
 ];
 
 /** Danh sách các items cho menu "Mentor Master" */
 const mentorMasterItems: SimpleMenuItem[] = [
-  {
-    title: 'Ghi danh Thành Mentor Master',
-    href: '/mentor/register',
-  },
-  {
-    title: 'Ưu đãi Dành cho Mentor/Master',
-    href: '/mentor/benefits',
-  },
+  { title: 'Ghi danh Thành Mentor Master', href: '/mentor/register' },
+  { title: 'Ưu đãi Dành cho Mentor/Master', href: '/mentor/benefits' },
 ];
 
 /** Danh sách các items cho menu "Kho Quan niệm" */
 const conceptItems: SimpleMenuItem[] = [
-  {
-    title: 'Tất cả Quan niệm',
-    href: '/concepts/all',
-  },
-  {
-    title: 'Vòng quay Quan niệm',
-    href: '/concepts/wheel',
-  },
+  { title: 'Tất cả Quan niệm', href: ROUTES.CONCEPTS },
+  { title: 'Vòng quay Quan niệm', href: '/concepts/wheel' },
 ];
 
 /** Danh sách các items cho menu "Kho Tri thức" */
@@ -83,27 +63,43 @@ const knowledgeItems: MenuItemWithDescription[] = [
   {
     title: 'Kho Tri thức',
     href: '/docs',
-    description:
-      'Nơi lưu trữ và chia sẻ các bài viết, tài liệu tri thức quý giá theo chủ đề.',
+    description: 'Nơi lưu trữ và chia sẻ các bài viết, tài liệu tri thức quý giá theo chủ đề.',
   },
   {
     title: 'Bộ Khái niệm',
     href: '/docs/installation',
-    description:
-      'Tập hợp các khái niệm cốt lõi được giải thích chi tiết để áp dụng thực tế.',
+    description: 'Tập hợp các khái niệm cốt lõi được giải thích chi tiết để áp dụng thực tế.',
   },
   {
     title: 'Thẻ Tri thức',
     href: '/docs/primitives/typography',
-    description:
-      'Các thẻ tri thức ngắn gọn, dễ nhớ để nắm bắt nhanh kiến thức quan trọng.',
+    description: 'Các thẻ tri thức ngắn gọn, dễ nhớ để nắm bắt nhanh kiến thức quan trọng.',
   },
   {
     title: 'Các khóa học',
     href: '/docs/primitives/typography',
-    description:
-      'Tham gia các khóa học từ cơ bản đến nâng cao phù hợp mọi trình độ.',
+    description: 'Tham gia các khóa học từ cơ bản đến nâng cao phù hợp mọi trình độ.',
   },
+];
+
+/** Menu items cho mobile - có thể có description hoặc không */
+type MobileMenuConfig = {
+  key: string;
+  title: string;
+  items: SimpleMenuItem[] | MenuItemWithDescription[];
+  hasDescription?: boolean;
+};
+
+const mobileMenuConfigs: MobileMenuConfig[] = [
+  { key: 'knowledge', title: 'Kho Tri thức', items: knowledgeItems, hasDescription: true },
+  { key: 'journey', title: 'Hành trình Trưởng thành', items: journeyItems },
+  { key: 'mentor', title: 'Mentor Master', items: mentorMasterItems },
+  { key: 'concepts', title: 'Kho Quan niệm', items: conceptItems },
+];
+
+const simpleLinks: SimpleMenuItem[] = [
+  { title: 'Cộng đồng', href: '/community' },
+  { title: 'Quà tặng E-Gift', href: 'https://egift365.vn/' },
 ];
 
 // ============================================================================
@@ -179,6 +175,84 @@ function SimpleMenuLink({
 // MAIN COMPONENT
 // ============================================================================
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const MOBILE_MENU_BUTTON_CLASS = "flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent";
+const MOBILE_MENU_ITEM_CLASS = "block rounded-md px-3 py-2 text-sm hover:bg-accent";
+const MOBILE_MENU_LINK_CLASS = "block rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent";
+
+// ============================================================================
+// MOBILE MENU COMPONENTS
+// ============================================================================
+
+/**
+ * Component Mobile Menu Item - Hiển thị một menu item trong mobile menu
+ */
+function MobileMenuItem({
+  item,
+  onClose,
+}: {
+  item: SimpleMenuItem | MenuItemWithDescription;
+  onClose: () => void;
+}) {
+  const hasDescription = 'description' in item;
+  const key = hasDescription ? item.title : item.href;
+  
+  return (
+    <Link
+      key={key}
+      href={item.href}
+      className={MOBILE_MENU_ITEM_CLASS}
+      onClick={onClose}
+    >
+      <div className="font-medium">{item.title}</div>
+      {hasDescription && (
+        <p className="text-xs text-muted-foreground line-clamp-1">
+          {item.description}
+        </p>
+      )}
+    </Link>
+  );
+}
+
+/**
+ * Component Mobile Menu Section - Hiển thị một section menu với dropdown
+ */
+function MobileMenuSection({
+  config,
+  isOpen,
+  onToggle,
+  onClose,
+}: {
+  config: MobileMenuConfig;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className={MOBILE_MENU_BUTTON_CLASS}
+      >
+        {config.title}
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="mt-2 space-y-1 pl-4">
+          {config.items.map((item, index) => (
+            <MobileMenuItem key={'description' in item ? item.title : item.href || index} item={item} onClose={onClose} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
  * Component Mobile Menu Content - Nội dung menu dạng vertical cho mobile
  */
@@ -198,138 +272,30 @@ function MobileMenuContent({
   if (!open) return null;
 
   return (
-        <div className="fixed left-0 right-0 top-[var(--header-height,100px)] z-50 border-t bg-background shadow-lg max-h-[calc(100vh-var(--header-height,100px))] overflow-y-auto">
-          <nav className="flex flex-col p-4 space-y-2">
-            {/* Kho Tri thức */}
-            <div>
-              <button
-                onClick={() => toggleMenu('knowledge')}
-                className="flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              >
-                Kho Tri thức
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${openMenus.knowledge ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openMenus.knowledge && (
-                <div className="mt-2 space-y-1 pl-4">
-                  {knowledgeItems.map(item => (
-                    <Link
-                      key={item.title}
-                      href={item.href}
-                      className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
-                      onClick={onClose}
-                    >
-                      <div className="font-medium">{item.title}</div>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {item.description}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Hành trình Trưởng thành */}
-            <div>
-              <button
-                onClick={() => toggleMenu('journey')}
-                className="flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              >
-                Hành trình Trưởng thành
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${openMenus.journey ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openMenus.journey && (
-                <div className="mt-2 space-y-1 pl-4">
-                  {journeyItems.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Mentor Master */}
-            <div>
-              <button
-                onClick={() => toggleMenu('mentor')}
-                className="flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              >
-                Mentor Master
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${openMenus.mentor ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openMenus.mentor && (
-                <div className="mt-2 space-y-1 pl-4">
-                  {mentorMasterItems.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Kho Quan niệm */}
-            <div>
-              <button
-                onClick={() => toggleMenu('concepts')}
-                className="flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              >
-                Kho Quan niệm
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${openMenus.concepts ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openMenus.concepts && (
-                <div className="mt-2 space-y-1 pl-4">
-                  {conceptItems.map(item => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Cộng đồng */}
-            <Link
-              href="/community"
-              className="block rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              onClick={onClose}
-            >
-              Cộng đồng
-            </Link>
-
-            {/* Quà tặng E-Gift */}
-            <Link
-              href="https://egift365.vn/"
-              className="block rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-              onClick={onClose}
-            >
-              Quà tặng E-Gift
-            </Link>
-          </nav>
-        </div>
+    <div className="fixed left-0 right-0 top-[var(--header-height,100px)] z-50 border-t bg-background shadow-lg max-h-[calc(100vh-var(--header-height,100px))] overflow-y-auto">
+      <nav className="flex flex-col p-4 space-y-2">
+        {mobileMenuConfigs.map(config => (
+          <MobileMenuSection
+            key={config.key}
+            config={config}
+            isOpen={openMenus[config.key] || false}
+            onToggle={() => toggleMenu(config.key)}
+            onClose={onClose}
+          />
+        ))}
+        
+        {simpleLinks.map(link => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={MOBILE_MENU_LINK_CLASS}
+            onClick={onClose}
+          >
+            {link.title}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }
 
@@ -384,6 +350,7 @@ export function MobileMenuButton() {
 
 /**
  * Component Mobile Menu - Menu dạng vertical cho mobile (wrapper)
+ * @deprecated Sử dụng MobileMenuButton thay thế
  */
 function MobileMenu() {
   const [open, setOpen] = React.useState(false);
@@ -429,7 +396,7 @@ export function Navigation() {
               {/* Image banner */}
               <li className="row-span-4">
                 <NavigationMenuLink asChild>
-                  <a
+                  <Link
                     className="relative flex h-full w-full flex-col justify-end overflow-hidden rounded-md p-4 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md md:p-6"
                     href="/"
                   >
@@ -447,7 +414,7 @@ export function Navigation() {
                       Khám phá kho tàng tri thức phong phú được tổ chức khoa học
                       và dễ tiếp cận.
                     </p>
-                  </a>
+                  </Link>
                 </NavigationMenuLink>
               </li>
               {/* Menu items với description */}

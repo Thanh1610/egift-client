@@ -3,10 +3,9 @@ import { Toaster } from "react-hot-toast";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { Merriweather } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/organisms/header";
-import Footer from "@/components/organisms/Footer";
-import ScrollToTop from "@/components/organisms/ScrollToTop";
+import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ThemeProvider } from "@/components/theme-provider";
+import { UserProvider } from "@/components/UserProvider";
 
 // Font Merriweather cho heading - "Giọng triết lý"
 const merriweather = Merriweather({
@@ -36,10 +35,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header />
-            <main className="bg-background text-foreground">{children}</main>
-            <Footer />
-            <ScrollToTop />
+            <UserProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </UserProvider>
           </ThemeProvider>
         </QueryProvider>
         <Toaster position="top-center" />

@@ -1,0 +1,206 @@
+# E-Gift365 Development Rules
+
+## SEO Best Practices
+
+### Metadata Guidelines
+1. **Title & Description**
+   - Title: Tối đa 60 ký tự, bao gồm brand name
+   - Description: 140-160 ký tự (tối ưu cho Google snippet)
+   - Tạo biến `description` và dùng lại cho `description`, `openGraph.description`, `twitter.description` để tránh lặp code
+
+2. **Keywords**
+   - ❌ KHÔNG dùng `keywords` trong metadata (Google đã bỏ từ 2009)
+   - Tập trung vào content quality thay vì meta keywords
+
+3. **Open Graph & Twitter Cards**
+   - Luôn thêm Open Graph tags cho social sharing
+   - Thêm Twitter Card tags
+   - Dùng chung description từ biến để tránh lặp
+
+4. **Canonical URLs**
+   - Luôn thêm `alternates.canonical` để tránh duplicate content
+   - Format: `${baseUrl}${ROUTES.PATH}`
+
+5. **Robots Meta**
+   - Cấu hình đúng cho Google Bot
+   - `index: true, follow: true` cho public pages
+   - `max-image-preview: "large"` để tối ưu image preview
+
+### Structured Data (JSON-LD)
+
+1. **ItemList Schema**
+   - Dùng cho danh sách items (concepts, stories, etc.)
+   - Luôn thêm `numberOfItems` và `itemListElement`
+
+2. **Article Schema**
+   - Mỗi item trong ItemList nên có `@type: "Article"`
+   - **Bắt buộc thêm `mainEntityOfPage`**:
+     ```json
+     mainEntityOfPage: {
+       "@type": "WebPage",
+       "@id": `${baseUrl}${item.href}`
+     }
+     ```
+   - Thêm `articleSection` để phân loại
+
+3. **Organization Schema**
+   - Đặt trong Footer component
+   - Bao gồm đầy đủ thông tin: name, url, logo, contactPoint, address
+
+### Semantic HTML
+
+1. **Heading Hierarchy**
+   - H1: Chỉ 1 lần, dùng cho page title
+   - H2: Section titles
+   - H3: Subsection titles
+   - Luôn tuân thủ thứ tự: H1 → H2 → H3
+
+2. **HTML5 Semantic Elements**
+   - `<article>`: Cho mỗi content item (concept, story, etc.)
+   - `<section>`: Cho các section lớn
+   - `<nav>`: Cho navigation
+   - `<header>`, `<footer>`: Cho page header/footer
+
+3. **ARIA Labels**
+   - Thêm `aria-label` cho links quan trọng
+   - Thêm `aria-labelledby` cho sections
+   - Thêm `role` attributes khi cần
+
+### Image SEO
+
+1. **Alt Text**
+   - Format: `"${title} - Mô tả ngắn về ${category}"`
+   - Luôn mô tả rõ ràng, không dùng generic text
+   - Ví dụ: `"${concept.title} - Quan niệm sống về ${concept.category}"`
+
+2. **Image Optimization**
+   - Dùng Next.js `Image` component
+   - Thêm `priority={index < 3}` cho 3 ảnh đầu tiên
+   - Cấu hình `sizes` attribute đúng cho responsive
+
+3. **Image Sizes**
+   - Desktop: `(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw`
+   - Mobile fullscreen: `100vw`
+
+### Code Quality
+
+1. **DRY Principle**
+   - Tạo biến cho các giá trị dùng nhiều lần (description, baseUrl, etc.)
+   - Tránh hardcode, dùng constants từ `@/config/constain`
+
+2. **Type Safety**
+   - Luôn dùng TypeScript types
+   - Import types từ `@/types/sanity` thay vì dùng `any`
+
+3. **File Organization**
+   - Component trong folder: dùng `index.tsx` làm entry point
+   - Ví dụ: `components/organisms/concepts/index.tsx`
+
+### Route Constants
+
+- Luôn dùng constants từ `@/config/constain` cho routes
+- Dùng `getDetailUrl()` helper để build detail URLs
+- Không hardcode paths trong code
+
+### Example: SEO-Optimized Page
+
+```typescript
+export async function generateMetadata(): Promise<Metadata> {
+  const items = await getItems();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://egift365.vn";
+  const url = `${baseUrl}${ROUTES.PATH}`;
+  
+  // Rút gọn description trong khoảng 140-160 ký tự
+  const description = `Mô tả ngắn gọn, súc tích về nội dung trang.`;
+
+  return {
+    title: "Page Title | Egift365",
+    description,
+    openGraph: {
+      title: "Page Title | Egift365",
+      description, // Dùng lại biến
+      url,
+      siteName: "Egift365",
+      locale: "vi_VN",
+      type: "website",
+      images: items.length > 0 && items[0].image ? [{
+        url: items[0].image,
+        width: 1200,
+        height: 630,
+        alt: items[0].title,
+      }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Page Title | Egift365",
+      description, // Dùng lại biến
+      images: items.length > 0 && items[0].image ? [items[0].image] : [],
+    },
+    alternates: {
+      canonical: url,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
+
+// Structured Data với mainEntityOfPage
+const itemListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "List Name",
+  description: "List description",
+  url: `${baseUrl}${ROUTES.PATH}`,
+  numberOfItems: items.length,
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: {
+      "@type": "Article",
+      "@id": `${baseUrl}${item.href}`,
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `${baseUrl}${item.href}`,
+      },
+      name: item.title,
+      description: item.description,
+      image: item.image,
+      url: `${baseUrl}${item.href}`,
+      articleSection: item.category,
+    },
+  })),
+};
+```
+
+## General Development Rules
+
+1. **Component Structure**
+   - Server Components mặc định
+   - Chỉ dùng `"use client"` khi cần interactivity hoặc hooks
+   - Tách logic ra hooks khi có thể
+
+2. **Error Handling**
+   - Luôn có fallback cho empty states
+   - Handle errors gracefully với try-catch
+   - Return empty array thay vì throw error khi fetch data
+
+3. **Performance**
+   - Dùng `Promise.all()` khi fetch nhiều data sources
+   - Lazy load components khi cần
+   - Optimize images với Next.js Image component
+
+4. **Accessibility**
+   - Luôn thêm alt text cho images
+   - Dùng semantic HTML
+   - Thêm ARIA labels khi cần
+   - Đảm bảo keyboard navigation
+

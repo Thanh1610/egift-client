@@ -5,7 +5,7 @@
 
 export const ROUTES = {
   // Public routes
-  HOME: "/",
+  HOME: "/egift365",
   
   // Auth routes
   AUTH: {
