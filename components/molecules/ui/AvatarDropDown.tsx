@@ -85,7 +85,7 @@ function AvatarDropDown({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => router.push("/profile")}>
+        <DropdownMenuItem onSelect={() => router.push(ROUTES.PROFILE)}>
           <User className="mr-2 h-4 w-4" />
           <span>Hồ sơ</span>
         </DropdownMenuItem>

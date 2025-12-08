@@ -2,15 +2,14 @@
 import Image from "next/image";
 import type { Concept } from "@/types/sanity";
 import ConceptRichText from "./ConceptRichText";
+import { getCategoryDisplay } from "@/lib/constants/categories";
 
 type ConceptLandscapeLayoutProps = {
   concept: Concept;
-  getCategoryDisplay: (category: string) => string;
 };
 
 export default function ConceptLandscapeLayout({
   concept,
-  getCategoryDisplay,
 }: ConceptLandscapeLayoutProps) {
   return (
     <article className="max-w-7xl mx-auto bg-[#F5F1EB] dark:bg-card min-h-screen">

@@ -81,7 +81,7 @@ export const getConcepts = async (): Promise<Concept[]> => {
           }
         },
         "slug": slug.current,
-        category,
+        "category": category->name,
         order,
         isActive,
         layoutType

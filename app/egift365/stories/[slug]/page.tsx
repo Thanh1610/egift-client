@@ -1,10 +1,10 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getConceptBySlug } from "@/hooks/sanity/concepts/getConceptBySlug";
+import { getStoryBySlug } from "@/hooks/sanity/stories/getStoryBySlug";
 import StructuredDataScript from "@/components/organisms/list/StructuredDataScript";
-import ConceptDetailContent from "@/components/organisms/concepts/ConceptDetailContent";
-import { portableTextToPlainText } from "@/lib/sanity/portableTextToPlainText";
+import StoryDetailContent from "@/components/organisms/stories/StoryDetailContent";
 import { initializeCategories } from "@/lib/constants/categories";
+import { portableTextToPlainText } from "@/lib/sanity/portableTextToPlainText";
 import CustomBreadcrumb from "@/components/organisms/navigation/CustomBreadcrumb";
 import { ROUTES } from "@/config/constain";
 
@@ -14,50 +14,49 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const concept = await getConceptBySlug(slug);
+  const story = await getStoryBySlug(slug);
 
-  if (!concept) {
+  if (!story) {
     return {
       title: "Không tìm thấy | Egift365",
     };
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://egift365.vn";
-  const url = `${baseUrl}${concept.href}`;
+  const url = `${baseUrl}${story.href}`;
   
-  // Convert blockContent to plain text for metadata
-  const plainTextDescription = portableTextToPlainText(concept.description);
-  // Description: 140-160 ký tự
-  const description = plainTextDescription.length > 160 
-    ? `${plainTextDescription.substring(0, 157)}...`
-    : plainTextDescription;
+  // Description: 140-160 ký tự (convert from PortableText)
+  const descriptionText = portableTextToPlainText(story.description);
+  const description = descriptionText.length > 160 
+    ? `${descriptionText.substring(0, 157)}...`
+    : descriptionText;
 
   return {
-    title: `${concept.title} | Egift365`,
+    title: `${story.title} | Egift365`,
     description,
     openGraph: {
-      title: `${concept.title} | Egift365`,
+      title: `${story.title} | Egift365`,
       description,
       url,
       siteName: "Egift365",
       locale: "vi_VN",
       type: "article",
-      images: concept.image
+      images: story.image
         ? [
             {
-              url: concept.image,
+              url: story.image,
               width: 1200,
               height: 630,
-              alt: concept.title,
+              alt: story.title,
             },
           ]
         : [],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${concept.title} | Egift365`,
+      title: `${story.title} | Egift365`,
       description,
-      images: concept.image ? [concept.image] : [],
+      images: story.image ? [story.image] : [],
     },
     alternates: {
       canonical: url,
@@ -76,32 +75,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ConceptDetailPage({ params }: Props) {
+export default async function StoryDetailPage({ params }: Props) {
   // Initialize categories từ Sanity
   await initializeCategories();
   
   const { slug } = await params;
-  const concept = await getConceptBySlug(slug);
+  const story = await getStoryBySlug(slug);
 
-  if (!concept) {
+  if (!story) {
     notFound();
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://egift365.vn";
 
+  // Description for structured data (convert from PortableText)
+  const descriptionText = portableTextToPlainText(story.description);
+
   // Structured Data for SEO - Article Schema
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "@id": `${baseUrl}${concept.href}`,
+    "@id": `${baseUrl}${story.href}`,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${baseUrl}${concept.href}`,
+      "@id": `${baseUrl}${story.href}`,
     },
-    headline: concept.title,
-    description: portableTextToPlainText(concept.description),
-    image: concept.image,
-    articleSection: concept.category,
+    headline: story.title,
+    description: descriptionText,
+    image: story.image,
+    articleSection: story.category,
     author: {
       "@type": "Organization",
       name: "Egift365",
@@ -127,14 +129,14 @@ export default async function ConceptDetailPage({ params }: Props) {
       <div className="container mx-auto px-4 pt-6">
         <CustomBreadcrumb
           items={[
-            { label: "Kho quan niệm", href: ROUTES.CONCEPTS },
-            { label: concept.title }, // Current page
+            { label: "Câu chuyện nội tâm", href: ROUTES.STORIES },
+            { label: story.title }, // Current page
           ]}
         />
       </div>
 
-      {/* Concept Detail Content with Reveal Overlay */}
-      <ConceptDetailContent concept={concept} />
+      {/* Story Detail Content */}
+      <StoryDetailContent story={story} />
     </>
   );
 }

@@ -2,9 +2,12 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Ear, Heart, Timer } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 import Link from "next/link";
 import type { InnerStory } from "@/types/sanity";
+import { getCategoryDisplay } from "@/lib/constants/categories";
+import { ROUTES } from "@/config/constain";
+import { portableTextToPlainText } from "@/lib/sanity/portableTextToPlainText";
 
 type InnerStoriesProps = {
   stories: InnerStory[];
@@ -22,24 +25,6 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-/**
- * Map category value từ Sanity sang display text
- * Dựa trên schema: children, adult, family
- */
-function getCategoryDisplay(category: string): string {
-  const categoryMap: Record<string, string> = {
-    children: "Trẻ em",
-    adult: "Người lớn",
-    family: "Cả gia đình",
-    // Fallback cho các category khác (nếu có)
-    inner: "Nội tâm",
-    health: "Sức khỏe",
-    relationship: "Mối quan hệ",
-    finance: "Tài chính",
-    knowledge: "Tri thức",
-  };
-  return categoryMap[category] || category;
-}
 
 export default function InnerStories({ stories }: InnerStoriesProps) {
   // Chỉ hiển thị 3 stories đầu tiên
@@ -101,29 +86,26 @@ export default function InnerStories({ stories }: InnerStoriesProps) {
                     sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw"
                     className="object-cover"
                   />
-                  <Badge className="absolute left-3 top-3 bg-background/80 text-xs">
+                  <Badge className="absolute left-3 top-3 bg-background/80 text-xs text-foreground">
                     {getCategoryDisplay(story.category)}
                   </Badge>
                 </div>
                 <CardTitle className="text-lg leading-snug">{story.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground leading-relaxed">{story.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 min-h-10">
+                  {portableTextToPlainText(story.description) || "\u00A0"}
+                </p>
               </CardContent>
               <CardFooter className="flex items-center gap-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <Ear className="h-4 w-4" />
-                  <span>{story.listenTime}</span>
-                </div>
-                <Separator orientation="vertical" className="h-4" />
-                <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   <span>{formatNumber(story.reads)} lượt đọc</span>
                 </div>
                 <Separator orientation="vertical" className="h-4" />
                 <div className="flex items-center gap-1">
-                  <Timer className="h-4 w-4" />
-                  <span>{formatNumber(story.reactions)} react</span>
+                  <Heart className="h-4 w-4" />
+                  <span>{formatNumber(story.likes)} likes</span>
                 </div>
               </CardFooter>
             </Card>
@@ -132,7 +114,7 @@ export default function InnerStories({ stories }: InnerStoriesProps) {
       </div>
       <div className="flex justify-center">
         <Link
-          href="#"
+          href={ROUTES.STORIES}
           className="inline-flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-medium text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           Xem thêm →
@@ -141,4 +123,5 @@ export default function InnerStories({ stories }: InnerStoriesProps) {
     </section>
   )
 }
+
 

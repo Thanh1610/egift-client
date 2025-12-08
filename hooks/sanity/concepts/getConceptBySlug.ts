@@ -50,7 +50,7 @@ export const getConceptBySlug = async (slug: string): Promise<Concept | null> =>
           }
         },
         "slug": slug.current,
-        category,
+        "category": category->name,
         order,
         isActive,
         layoutType

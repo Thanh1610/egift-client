@@ -13,6 +13,9 @@ export const ROUTES = {
     SIGNUP: "/auth/signup",
     CALLBACK: "/auth/callback",
   },
+  
+  // User routes
+  PROFILE: "/egift365/profile",
 } as const
 
 /**

@@ -53,15 +53,14 @@ export type Concept = {
 };
 
 // Inner Story từ Sanity (raw response)
+// Note: reads, likes, bookmarks đã được chuyển sang Supabase, không còn fetch từ Sanity
 export type SanityInnerStory = {
   _id: string;
   title: string;
   category: string;
   image: SanityImageReference | null;
-  description: string;
+  description: PortableTextBlock[]; // Rich text editor (blockContent)
   listenTime: string;
-  reads: number;
-  reactions: number;
   slug: string;
   order: number;
   isActive: boolean;
@@ -73,10 +72,11 @@ export type InnerStory = {
   title: string;
   category: string;
   image: string;
-  description: string;
+  description: PortableTextBlock[]; // Rich text editor (blockContent)
   listenTime: string;
+  likes: number;
+  bookmarks: number;
   reads: number;
-  reactions: number;
   slug: string;
   order: number;
   isActive: boolean;

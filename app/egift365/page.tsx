@@ -1,5 +1,4 @@
 import HeroCarousel from "@/components/organisms/home/HeroCarousel";
-import DailySection from "@/components/organisms/home/DailySection";
 import ConceptLibrary from "@/components/organisms/home/ConceptLibrary";
 import InnerStories from "@/components/organisms/home/InnerStories";
 import ConceptSourceSet from "@/components/organisms/home/ConceptSourceSet";
@@ -26,10 +25,6 @@ export default async function Home() {
     <div className="w-full bg-card border shadow-sm">
       {/* banner */}
       {banners.length > 0 && <HeroCarousel banners={banners.map(b => b.url)} />}
-
-      {/* quan niệm hôm nay*/}
-      <DailySection />
-      <Separator />
 
       {/* kho quan niệm*/}
       <ConceptLibrary concepts={concepts} />

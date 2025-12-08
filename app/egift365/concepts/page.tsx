@@ -7,6 +7,8 @@ import { generateItemListSchema } from "@/lib/seo/generateStructuredData";
 import ListPageHeader from "@/components/organisms/list/ListPageHeader";
 import StructuredDataScript from "@/components/organisms/list/StructuredDataScript";
 import { portableTextToPlainText } from "@/lib/sanity/portableTextToPlainText";
+import { initializeCategories } from "@/lib/constants/categories";
+import CustomBreadcrumb from "@/components/organisms/navigation/CustomBreadcrumb";
 
 export async function generateMetadata(): Promise<Metadata> {
   const concepts = await getConcepts();
@@ -26,6 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ConceptsPage() {
+  // Initialize categories từ Sanity
+  await initializeCategories();
+  
   const concepts = await getConcepts();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://egift365.vn";
 
@@ -53,6 +58,15 @@ export default async function ConceptsPage() {
     <>
       {/* Structured Data for SEO */}
       <StructuredDataScript data={itemListSchema} />
+
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-4 pt-6">
+        <CustomBreadcrumb
+          items={[
+            { label: "Kho quan niệm" }, // Current page
+          ]}
+        />
+      </div>
 
       {/* Desktop header - hidden on mobile */}
       <ListPageHeader
