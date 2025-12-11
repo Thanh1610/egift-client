@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { persist, createJSONStorage } from "zustand/middleware"
 import type { User } from "@supabase/supabase-js"
 
 /**
@@ -31,17 +32,36 @@ interface UserState {
 
 /**
  * Zustand store để quản lý user state
- * Không dùng persist để tránh vấn đề với SSR
- * User data sẽ được sync từ Supabase session
+ * Sử dụng persist middleware để lưu vào localStorage
+ * Tránh mất dữ liệu khi refresh trang (F5)
  */
-export const useUserStore = create<UserState>((set) => ({
-  user: null,
-  profile: null,
-  isLoading: false,
+export const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      user: null,
+      profile: null,
+      isLoading: false,
 
-  setUser: (user) => set({ user }),
-  setProfile: (profile) => set({ profile }),
-  setLoading: (isLoading) => set({ isLoading }),
-  clearUser: () => set({ user: null, profile: null, isLoading: false }),
-}))
+      setUser: (user) => set({ user }),
+      setProfile: (profile) => set({ profile }),
+      setLoading: (isLoading) => set({ isLoading }),
+      clearUser: () => {
+        set({ user: null, profile: null, isLoading: false })
+        // Xóa hoàn toàn dữ liệu khỏi localStorage khi logout
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("egift-client-user-storage")
+        }
+      },
+    }),
+    {
+      name: "egift-client-user-storage", // Tên key trong localStorage
+      storage: createJSONStorage(() => localStorage),
+      // Chỉ persist user và profile, không persist isLoading
+      partialize: (state) => ({
+        user: state.user,
+        profile: state.profile,
+      }),
+    }
+  )
+)
 

@@ -31,6 +31,10 @@ export function useAuthLogin() {
       })
 
       if (signInError) {
+        // Nếu status code là 400 (Bad Request), thường là thông tin đăng nhập không chính xác
+        if (signInError.status === 400) {
+          throw new Error("Thông tin đăng nhập không chính xác")
+        }
         throw new Error(signInError.message)
       }
 

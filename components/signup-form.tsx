@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import toast from "react-hot-toast"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,134 +17,109 @@ import { Input } from "@/components/ui/input"
 import { useAuthSignup } from "@/hooks/useAuthSignup"
 import { useAuthOAuth } from "@/hooks/useAuthOAuth"
 import { ROUTES } from "@/lib/constants/routes"
+import { Spinner } from "@/components/ui/spinner"
+
+const signupSchema = z
+  .object({
+    name: z.string().min(1, "Họ và tên đầy đủ là bắt buộc"),
+    email: z.string().email("Email không hợp lệ"),
+    password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu không khớp",
+    path: ["confirmPassword"],
+  })
+
+type SignupFormValues = z.infer<typeof signupSchema>
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  
-  const { signup, isLoading: isSignupLoading, error: signupError } = useAuthSignup()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+  })
+
+  const { signup, isLoading: isSignupLoading } = useAuthSignup()
   const { loginWithOAuth, isLoading: isOAuthLoading } = useAuthOAuth()
-  
-  const isLoading = isSignupLoading || isOAuthLoading
 
-  // Update error state from mutation error
-  useEffect(() => {
-    if (signupError) {
-      // Use setTimeout to avoid setState in effect
-      setTimeout(() => {
-        setError(signupError.message)
-      }, 0)
-    }
-  }, [signupError])
+  const isLoading = isSignupLoading || isOAuthLoading || isSubmitting
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
-
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      const errorMessage = "Mật khẩu không khớp"
-      setError(errorMessage)
-      toast.error(errorMessage)
-      return
-    }
-
-    // Validate password length
-    if (password.length < 8) {
-      const errorMessage = "Mật khẩu phải có ít nhất 8 ký tự"
-      setError(errorMessage)
-      toast.error(errorMessage)
-      return
-    }
-
-    signup({ name, email, password })
+  const onSubmit = async (data: SignupFormValues) => {
+    signup({ name: data.name, email: data.email, password: data.password })
   }
 
   const handleGitHubSignup = () => {
-    setError(null)
     loginWithOAuth("github")
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit(onSubmit)} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Create your account</h1>
+          <h1 className="text-2xl font-bold">Tạo tài khoản của bạn</h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Fill in the form below to create your account
+            Hãy điền vào biểu mẫu bên dưới để tạo tài khoản của bạn.
           </p>
         </div>
-        {error && (
-          <Field>
-            <FieldError>{error}</FieldError>
-          </Field>
-        )}
-        <Field>
-          <FieldLabel htmlFor="name">Full Name</FieldLabel>
+        <Field data-invalid={!!errors.name}>
+          <FieldLabel htmlFor="name">Họ và tên</FieldLabel>
           <Input
             id="name"
             type="text"
-            placeholder="John Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
+            placeholder="Nguyễn Văn A"
+            aria-invalid={!!errors.name}
             disabled={isLoading}
+            {...register("name")}
           />
+          {errors.name && <FieldError errors={[errors.name]} />}
         </Field>
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+        <Field data-invalid={!!errors.email}>
+          <FieldLabel htmlFor="email">E-mail</FieldLabel>
           <Input
             id="email"
             type="email"
-            placeholder="m@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            placeholder="example@email.com"
+            aria-invalid={!!errors.email}
             disabled={isLoading}
+            {...register("email")}
           />
-          <FieldDescription>
-            We&apos;ll use this to contact you. We will not share your email
-            with anyone else.
-          </FieldDescription>
+          {errors.email && <FieldError errors={[errors.email]} />}
         </Field>
-        <Field>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
+        <Field data-invalid={!!errors.password}>
+          <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
           <Input
             id="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            aria-invalid={!!errors.password}
             disabled={isLoading}
+            {...register("password")}
           />
-          <FieldDescription>
-            Must be at least 8 characters long.
-          </FieldDescription>
+          {errors.password && <FieldError errors={[errors.password]} />}
         </Field>
-        <Field>
-          <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
+        <Field data-invalid={!!errors.confirmPassword}>
+          <FieldLabel htmlFor="confirmPassword">Xác nhận mật khẩu</FieldLabel>
           <Input
-            id="confirm-password"
+            id="confirmPassword"
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
+            aria-invalid={!!errors.confirmPassword}
             disabled={isLoading}
+            {...register("confirmPassword")}
           />
-          <FieldDescription>Please confirm your password.</FieldDescription>
+          {errors.confirmPassword && <FieldError errors={[errors.confirmPassword]} />}
         </Field>
         <Field>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? <Spinner /> : null}
+            Tạo tài khoản
           </Button>
         </Field>
-        <FieldSeparator>Or continue with</FieldSeparator>
+        <FieldSeparator>Hoặc tiếp tục với</FieldSeparator>
         <Field>
           <Button variant="outline" type="button" onClick={handleGitHubSignup} disabled={isLoading}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -152,10 +128,10 @@ export function SignupForm({
                 fill="currentColor"
               />
             </svg>
-            Sign up with GitHub
+            Đăng ký với GitHub
           </Button>
           <FieldDescription className="px-6 text-center">
-            Already have an account? <a href={ROUTES.AUTH.LOGIN}>Sign in</a>
+            Bạn đã có tài khoản? <a href={ROUTES.AUTH.LOGIN}>Đăng nhập</a>
           </FieldDescription>
         </Field>
       </FieldGroup>

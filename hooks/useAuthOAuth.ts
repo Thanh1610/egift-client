@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/constants/routes"
 
 export function useAuthOAuth() {
   const mutation = useMutation({
-    mutationFn: async (provider: "github") => {
+    mutationFn: async (provider: "github" | "google") => {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider,

@@ -15,25 +15,30 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL(getLoginUrlWithError(exchangeError.message), requestUrl.origin))
     }
 
-    // Check user role in profile
+    // For client app, we don't check role - any authenticated user can access
+    // If profile doesn't exist, create one automatically
     if (sessionData.user) {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("role")
+        .select("*")
         .eq("id", sessionData.user.id)
         .single()
 
       if (profileError || !profile) {
-        // If profile doesn't exist, sign out and redirect to login
-        await supabase.auth.signOut()
-        return NextResponse.redirect(new URL(getLoginUrlWithError("Profile not found. Please contact administrator."), requestUrl.origin))
-      }
+        // If profile doesn't exist, create one with default role "member"
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .upsert({
+            id: sessionData.user.id,
+            email: sessionData.user.email || "",
+            full_name: sessionData.user.user_metadata?.full_name || sessionData.user.user_metadata?.name || null,
+            role: "member",
+            avatar_url: sessionData.user.user_metadata?.avatar_url || null,
+          }, { onConflict: "id" })
 
-      // Check if role is "master"
-      if (profile.role !== "master") {
-        // Sign out user if role is not master
-        await supabase.auth.signOut()
-        return NextResponse.redirect(new URL(getLoginUrlWithError("Access denied. Only master users can login."), requestUrl.origin))
+        if (insertError) {
+          console.error("Error creating profile:", insertError)
+        }
       }
     }
   }

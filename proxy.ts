@@ -29,11 +29,27 @@ function createSupabaseClient(
         getAll: () => request.cookies.getAll(),
         setAll: (cookiesToSet) => {
           if (onSetCookie) {
-            onSetCookie(cookiesToSet)
+            const transformedCookies = cookiesToSet.map(({ name, value, options }) => ({
+              name,
+              value,
+              options: options ? {
+                ...options,
+                sameSite: typeof options.sameSite === "boolean" 
+                  ? (options.sameSite ? "lax" : "none")
+                  : options.sameSite,
+              } as CookieOptions : undefined,
+            }))
+            onSetCookie(transformedCookies)
           } else {
             cookiesToSet.forEach(({ name, value, options }) => {
               request.cookies.set(name, value)
-              response.cookies.set(name, value, options)
+              const transformedOptions = options ? {
+                ...options,
+                sameSite: typeof options.sameSite === "boolean"
+                  ? (options.sameSite ? "lax" : "none")
+                  : options.sameSite,
+              } : undefined
+              response.cookies.set(name, value, transformedOptions)
             })
           }
         },
