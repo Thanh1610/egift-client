@@ -25,6 +25,8 @@ export type SanityConcept = {
   applicationContent?: PortableTextBlock[];
   description?: PortableTextBlock[]; // Legacy field for backward compatibility
   image: SanityImageReference | null;
+  backgroundImage?: SanityImageReference | null;
+  audio?: { asset: SanityImageAsset } | null;
   slug: string;
   category: string;
   order: number;
@@ -42,6 +44,8 @@ export type Concept = {
   footerContent?: PortableTextBlock[];
   applicationContent?: PortableTextBlock[];
   image: string;
+  backgroundImage?: string;
+  audio?: string | null;
   slug: string;
   category: string;
   order: number;

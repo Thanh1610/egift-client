@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Allow cross-origin requests from local network in development
+  allowedDevOrigins: [
+    "localhost",
+    "127.0.0.1",
+    "192.168.1.60",
+  ],
 };
 
 export default nextConfig;

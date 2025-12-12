@@ -14,7 +14,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useAuthLogin } from "@/hooks/useAuthLogin"
@@ -44,7 +43,7 @@ export function LoginForm({
   })
 
   const { login, isLoading: isLoginLoading } = useAuthLogin()
-  const { loginWithOAuth, isLoading: isOAuthLoading } = useAuthOAuth()
+  const { isLoading: isOAuthLoading } = useAuthOAuth()
 
   const isLoading = isLoginLoading || isOAuthLoading || isSubmitting
 
@@ -63,12 +62,17 @@ export function LoginForm({
     login({ email: data.email, password: data.password })
   }
 
-  const handleGoogleLogin = () => {
-    loginWithOAuth("google")
-  }
+  // const handleGoogleLogin = () => {
+  //   loginWithOAuth("google")
+  // }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit(onSubmit)} {...props}>
+    <form 
+      className={cn("flex flex-col gap-6", className)} 
+      onSubmit={handleSubmit(onSubmit)} 
+      suppressHydrationWarning
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Đăng nhập vào tài khoản của bạn</h1>

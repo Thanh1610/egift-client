@@ -118,24 +118,45 @@ export default async function ConceptDetailPage({ params }: Props) {
     dateModified: new Date().toISOString(),
   };
 
+  const backgroundImageStyle = concept.backgroundImage
+    ? {
+        backgroundImage: `url(${concept.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+      }
+    : {};
+
   return (
-    <>
-      {/* Structured Data for SEO */}
-      <StructuredDataScript data={articleSchema} />
+    <div
+      className="relative min-h-screen w-full"
+      style={backgroundImageStyle}
+    >
+      {/* Overlay để làm background image nhạt hơn - hỗ trợ dark mode */}
+      {concept.backgroundImage && (
+        <div className="absolute inset-0 bg-white/90 dark:bg-black/90 z-0" />
+      )}
 
-      {/* Breadcrumb */}
-      <div className="container mx-auto px-4 pt-6">
-        <CustomBreadcrumb
-          items={[
-            { label: "Kho quan niệm", href: ROUTES.CONCEPTS },
-            { label: concept.title }, // Current page
-          ]}
-        />
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Structured Data for SEO */}
+        <StructuredDataScript data={articleSchema} />
+
+        {/* Breadcrumb */}
+        <div className="container mx-auto px-4 pt-6">
+          <CustomBreadcrumb
+            items={[
+              { label: "Kho quan niệm", href: ROUTES.CONCEPTS },
+              { label: concept.title }, // Current page
+            ]}
+          />
+        </div>
+
+        {/* Concept Detail Content with Reveal Overlay */}
+        <ConceptDetailContent concept={concept} />
       </div>
-
-      {/* Concept Detail Content with Reveal Overlay */}
-      <ConceptDetailContent concept={concept} />
-    </>
+    </div>
   );
 }
 

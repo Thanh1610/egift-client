@@ -1,6 +1,6 @@
-import { sanityClient } from "@/lib/sanity/client";
-import type { SanityConcept, Concept } from "@/types/sanity";
-import { ROUTES, getDetailUrl } from "@/config/constain";
+import { sanityClient } from '@/lib/sanity/client';
+import type { SanityConcept, Concept } from '@/types/sanity';
+import { ROUTES, getDetailUrl } from '@/config/constain';
 
 /**
  * Helper: GROQ fragment để fetch blockContent với images
@@ -38,13 +38,14 @@ const transformConcept = (concept: SanityConcept): Concept => {
     bodyContent,
     footerContent: concept.footerContent,
     applicationContent: concept.applicationContent,
-    description: allContent.length > 0 ? allContent : (concept.description || []),
-    image: concept.image?.asset?.url || "",
+    description: allContent.length > 0 ? allContent : concept.description || [],
+    image: concept.image?.asset?.url || '',
+    backgroundImage: concept.backgroundImage?.asset?.url,
     slug: concept.slug,
     category: concept.category,
     order: concept.order,
     isActive: concept.isActive,
-    layoutType: concept.layoutType || "portrait",
+    layoutType: concept.layoutType || 'portrait',
     href: getDetailUrl(ROUTES.CONCEPTS, concept.slug),
   };
 };
@@ -57,7 +58,7 @@ export const getConcepts = async (): Promise<Concept[]> => {
   try {
     // Kiểm tra Sanity config
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-      console.warn("NEXT_PUBLIC_SANITY_PROJECT_ID is not set");
+      console.warn('NEXT_PUBLIC_SANITY_PROJECT_ID is not set');
       return [];
     }
 
@@ -80,6 +81,12 @@ export const getConcepts = async (): Promise<Concept[]> => {
             url
           }
         },
+        backgroundImage {
+          asset -> {
+            _id,
+            url
+          }
+        },
         "slug": slug.current,
         "category": category->name,
         order,
@@ -91,8 +98,9 @@ export const getConcepts = async (): Promise<Concept[]> => {
     // Transform data để match với component
     return concepts.map(transformConcept);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error fetching concepts from Sanity:", errorMessage);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error fetching concepts from Sanity:', errorMessage);
     // Fallback về empty array nếu fetch fail
     return [];
   }

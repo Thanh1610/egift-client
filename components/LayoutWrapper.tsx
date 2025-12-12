@@ -1,9 +1,12 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import Header from "@/components/organisms/header"
 import Footer from "@/components/organisms/Footer"
 import ScrollToTop from "@/components/organisms/ScrollToTop"
+
+// Header dùng Radix navigation; tắt SSR để tránh hydration mismatch khi Radix tạo id khác nhau giữa server/client
+const Header = dynamic(() => import("@/components/organisms/header"), { ssr: false })
 
 interface LayoutWrapperProps {
   children: React.ReactNode

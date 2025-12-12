@@ -43,12 +43,9 @@ export const getConceptBySlug = async (slug: string): Promise<Concept | null> =>
         footerContent${blockContentFragment},
         applicationContent${blockContentFragment},
         description${blockContentFragment},
-        image {
-          asset -> {
-            _id,
-            url
-          }
-        },
+        image { asset -> { _id, url } },
+        backgroundImage { asset -> { _id, url } },
+        audio { asset -> { _id, url } },
         "slug": slug.current,
         "category": category->name,
         order,
@@ -81,6 +78,8 @@ export const getConceptBySlug = async (slug: string): Promise<Concept | null> =>
       applicationContent: concept.applicationContent,
       description: allContent.length > 0 ? allContent : (concept.description || []),
       image: concept.image?.asset?.url || "",
+      backgroundImage: concept.backgroundImage?.asset?.url,
+      audio: concept.audio?.asset?.url || null,
       slug: concept.slug,
       category: concept.category,
       order: concept.order,
